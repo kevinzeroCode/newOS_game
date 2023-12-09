@@ -29,7 +29,7 @@ class ImageSwitcher(tk.Tk):
 
         self.load_images()
 
-        self.button_start = tk.Button(self, text="開始隨機跑圖", command=self.start_random)
+        self.button_start = tk.Button(self, text="開始抽獎", command=self.start_random)
         self.button_start.pack()
 
         self.button_pause = tk.Button(self, text="暫停", command=self.toggle_pause)
@@ -55,13 +55,11 @@ class ImageSwitcher(tk.Tk):
 
     def show_next_images(self, i, t):
         if not self.paused:
+            getattr(self, f'canvas{4}').delete("all")
             if 0 <= self.current_indexes[i] < len(self.image_paths):
                 self.current_indexes[i] += 1
                 if self.current_indexes[i] >= len(self.image_paths):
                     self.current_indexes[i] = 0
-                if self.count == 6:
-                    self.current_indexes[i] = 0
-                    self.count = 0
                 self.load_images()
         self.after(t, lambda: self.show_next_images(i, t))
 
@@ -74,9 +72,9 @@ class ImageSwitcher(tk.Tk):
         print(image_path1)
         print(image_path2)
         print(image_path3)
+        print(self.count)
         print("----------")
         unique_paths = {image_path1, image_path2, image_path3}
-
         if len(unique_paths) == 1:
             # 三个 Canvas 上的 image_path 相同
             image_path = "D:/OS/reward/a.gif"
@@ -93,6 +91,24 @@ class ImageSwitcher(tk.Tk):
         tk_image = ImageTk.PhotoImage(resized_image)
         getattr(self, f'canvas{4}').create_image(0, 0, anchor=tk.NW, image=tk_image)
         getattr(self, f'canvas{4}').image = tk_image  # 保持對圖片的引用
+
+        if (self.count%3) == 0:
+            image_path = self.image_paths[self.current_indexes[0]]
+            # reward_path = "D:/OS/reward/c.gif"
+            resized_image = Image.open(image_path).resize((200, 200))
+            tk_image = ImageTk.PhotoImage(resized_image)
+
+            for i in range(1, 4):  # 更新四個 Canvas 上的圖片
+                getattr(self, f'canvas{i}').delete("all")  # 清空 Canvas 上的內容
+                getattr(self, f'canvas{i}').create_image(0, 0, anchor=tk.NW, image=tk_image)
+                getattr(self, f'canvas{i}').image = tk_image  # 保持對圖片的引用
+
+            reward_path = "D:/OS/reward/a.gif"
+            resized_image = Image.open(reward_path).resize((200, 200))
+            tk_image = ImageTk.PhotoImage(resized_image)
+            getattr(self, f'canvas{4}').delete("all")  # 清空 Canvas 上的內容
+            getattr(self, f'canvas{4}').create_image(0, 0, anchor=tk.NW, image=tk_image)
+            getattr(self, f'canvas{4}').image = tk_image  # 保持對圖片的引用
 
 
 if __name__ == "__main__":
